@@ -14,9 +14,10 @@ class StudyLogController extends Controller
     {
         try {
             $studyLogs = StudyLog::with(['user'])
+                ->where('user_id', auth()->id()) // Hanya log milik user yang login
                 ->orderBy('created_at', 'desc')
                 ->paginate(10);
-
+    
             return response()->json([
                 'success' => true,
                 'message' => 'Study logs retrieved successfully',
@@ -38,7 +39,6 @@ class StudyLogController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'user_id' => 'required|exists:users,id',
                 'topic' => 'required|string|max:255',
                 'duration_minutes' => 'required|integer|min:1',
                 'log_date' => 'required|date',
@@ -53,7 +53,11 @@ class StudyLogController extends Controller
                 ], 422);
             }
 
-            $studyLog = StudyLog::create($request->all());
+            // Gunakan authenticated user
+            $data = $request->all();
+            $data['user_id'] = auth()->id();
+            
+            $studyLog = StudyLog::create($data);
 
             return response()->json([
                 'success' => true,
