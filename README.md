@@ -128,7 +128,7 @@ Fitur utama yang terinspirasi dari GitHub, di mana warna setiap tanggal akan mer
 ## 🚀 Cara Menjalankan Proyek Secara Lokal
 
 ### Prerequisites
-- PHP >= 8.0
+- PHP >= 8.2
 - Composer
 - MySQL
 - Node.js & NPM
@@ -162,7 +162,7 @@ Fitur utama yang terinspirasi dari GitHub, di mana warna setiap tanggal akan mer
    DB_CONNECTION=mysql
    DB_HOST=127.0.0.1
    DB_PORT=3306
-   DB_DATABASE=jurnal_belajar
+   DB_DATABASE=learnin_path
    DB_USERNAME=root
    DB_PASSWORD=
    ```
@@ -184,9 +184,7 @@ Fitur utama yang terinspirasi dari GitHub, di mana warna setiap tanggal akan mer
 
 9. **Build assets:**
    ```bash
-   npm run dev
-   # atau untuk production
-   npm run build
+   npx tailwindcss -i ./src/input.css -o ./dist/output.css --watch
    ```
 
 10. **Jalankan server:**
@@ -204,7 +202,7 @@ Untuk development dengan hot-reload:
 php artisan serve
 
 # Terminal 2
-npm run watch
+npx http-server -p 8080 -c-1 / php -S localhost:8080/src/signUp.html
 ```
 
 ---
@@ -241,7 +239,7 @@ backend/
 Berikut adalah environment variables yang perlu dikonfigurasi:
 
 ```env
-APP_NAME="Jurnal Belajar Digital"
+APP_NAME="Jurnal Belajar Digital - learn.in-path"
 APP_ENV=local
 APP_KEY=
 APP_DEBUG=true
@@ -250,7 +248,7 @@ APP_URL=http://localhost:8000
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=jurnal_belajar
+DB_DATABASE=learnin_path
 DB_USERNAME=root
 DB_PASSWORD=
 
@@ -260,26 +258,6 @@ MAIL_PORT=
 MAIL_USERNAME=
 MAIL_PASSWORD=
 ```
-
----
-
-## 🤝 Kontribusi
-
-Kami menerima kontribusi! Silakan ikuti langkah berikut:
-
-1. Fork repository
-2. Buat branch fitur (`git checkout -b feature/AmazingFeature`)
-3. Commit perubahan (`git commit -m 'Add some AmazingFeature'`)
-4. Push ke branch (`git push origin feature/AmazingFeature`)
-5. Buat Pull Request
-
----
-
-## 📝 License
-
-Distributed under the MIT License. See `LICENSE` for more information.
-
----
 
 ## 📧 Kontak
 
