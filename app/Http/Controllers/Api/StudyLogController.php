@@ -39,10 +39,11 @@ class StudyLogController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'topic' => 'required|string|max:255',
-                'duration_minutes' => 'required|integer|min:1',
-                'log_date' => 'required|date',
-                'notes' => 'nullable|string'
+                'title' => 'required|string|max:255',
+                'description' => 'nullable|string',
+                'category' => 'required|string|max:255',
+                'duration' => 'required|integer|min:1',
+                'date' => 'required|date'
             ]);
 
             if ($validator->fails()) {
@@ -119,10 +120,11 @@ class StudyLogController extends Controller
 
             $validator = Validator::make($request->all(), [
                 'user_id' => 'sometimes|required|exists:users,id',
-                'topic' => 'sometimes|required|string|max:255',
-                'duration_minutes' => 'sometimes|required|integer|min:1',
-                'log_date' => 'sometimes|required|date',
-                'notes' => 'nullable|string'
+                'title' => 'sometimes|required|string|max:255',
+                'description' => 'nullable|string',
+                'category' => 'sometimes|required|string|max:255',
+                'duration' => 'sometimes|required|integer|min:1',
+                'date' => 'sometimes|required|date'
             ]);
 
             if ($validator->fails()) {
