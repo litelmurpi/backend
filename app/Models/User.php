@@ -46,4 +46,38 @@ class User extends Authenticatable
     public function studyLogs() {
         return $this->hasMany(StudyLog::class);
     }
+
+    public function pomodoroSessions()
+    {
+        return $this->hasMany(PomodoroSession::class);
+    }
+
+    public function pomodoroSettings()
+    {
+        return $this->hasOne(UserPomodoroSetting::class);
+    }
+
+    // Pomodoro-related methods
+    public function getOrCreatePomodoroSettings()
+    {
+        return $this->pomodoroSettings()->firstOrCreate(
+            ['user_id' => $this->id],
+            UserPomodoroSetting::getDefaultSettings()
+        );
+    }
+
+    public function getPomodoroStatistics()
+    {
+        $sessions = $this->pomodoroSessions();
+        
+        return [
+            'total_sessions' => $sessions->count(),
+            'completed_sessions' => $sessions->completed()->count(),
+            'total_focus_time' => $sessions->completed()->sum('actual_duration'),
+            'average_session_length' => $sessions->completed()->avg('actual_duration'),
+            'sessions_today' => $sessions->today()->count(),
+            'sessions_this_week' => $sessions->thisWeek()->count(),
+            'sessions_this_month' => $sessions->thisMonth()->count(),
+        ];
+    }
 }

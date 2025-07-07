@@ -27,6 +27,9 @@ class DashboardController extends Controller
             // Get today's sessions count
             $sessionsToday = $this->getSessionsToday($userId);
             
+            // Get Pomodoro statistics
+            $pomodoroStats = $this->getPomodoroStats($userId);
+            
             return response()->json([
                 'success' => true,
                 'message' => 'Dashboard stats retrieved successfully',
@@ -37,7 +40,8 @@ class DashboardController extends Controller
                         'hours' => round($totalTimeThisMonth / 60, 1),
                         'formatted' => $this->formatDuration($totalTimeThisMonth)
                     ],
-                    'sessions_today' => $sessionsToday
+                    'sessions_today' => $sessionsToday,
+                    'pomodoro' => $pomodoroStats
                 ]
             ], 200);
         } catch (\Exception $e) {
@@ -55,8 +59,8 @@ class DashboardController extends Controller
     private function calculateLongestStreak(int $userId): int
     {
         $studyLogs = StudyLog::where('user_id', $userId)
-            ->orderBy('log_date', 'asc')
-            ->pluck('log_date')
+            ->orderBy('date', 'asc')
+            ->pluck('date')
             ->map(function ($date) {
                 return Carbon::parse($date)->format('Y-m-d');
             })
@@ -92,9 +96,9 @@ class DashboardController extends Controller
     private function getTotalTimeThisMonth(int $userId): int
     {
         return StudyLog::where('user_id', $userId)
-            ->whereMonth('log_date', Carbon::now()->month)
-            ->whereYear('log_date', Carbon::now()->year)
-            ->sum('duration_minutes');
+            ->whereMonth('date', Carbon::now()->month)
+            ->whereYear('date', Carbon::now()->year)
+            ->sum('duration');
     }
     
     /**
@@ -103,7 +107,7 @@ class DashboardController extends Controller
     private function getSessionsToday(int $userId): int
     {
         return StudyLog::where('user_id', $userId)
-            ->whereDate('log_date', Carbon::today())
+            ->whereDate('date', Carbon::today())
             ->count();
     }
     
@@ -137,10 +141,10 @@ class DashboardController extends Controller
             
             // Get aggregated data per day
             $heatmapData = StudyLog::where('user_id', $userId)
-                ->whereBetween('log_date', [$startDate, $endDate])
-                ->groupBy('log_date')
-                ->selectRaw('log_date as date, SUM(duration_minutes) as total_minutes, COUNT(*) as session_count')
-                ->orderBy('log_date', 'asc')
+                ->whereBetween('date', [$startDate, $endDate])
+                ->groupBy('date')
+                ->selectRaw('date as date, SUM(duration) as total_minutes, COUNT(*) as session_count')
+                ->orderBy('date', 'asc')
                 ->get()
                 ->map(function ($item) {
                     return [
@@ -289,7 +293,7 @@ class DashboardController extends Controller
         // Check backwards from today
         while (true) {
             $hasStudy = StudyLog::where('user_id', $userId)
-                ->whereDate('log_date', $currentDate)
+                ->whereDate('date', $currentDate)
                 ->exists();
             
             if ($hasStudy) {
@@ -306,5 +310,26 @@ class DashboardController extends Controller
         }
         
         return $streak;
+    }
+
+    /**
+     * Get Pomodoro statistics for dashboard
+     */
+    private function getPomodoroStats(int $userId): array
+    {
+        $user = \App\Models\User::find($userId);
+        $basicStats = $user->getPomodoroStatistics();
+
+        return [
+            'sessions_today' => $basicStats['sessions_today'],
+            'total_focus_time_today' => \App\Models\PomodoroSession::where('user_id', $userId)
+                ->today()
+                ->completed()
+                ->sum('actual_duration'),
+            'completed_sessions_this_week' => $basicStats['sessions_this_week'],
+            'active_session' => \App\Models\PomodoroSession::where('user_id', $userId)
+                ->whereIn('status', ['active', 'paused'])
+                ->exists()
+        ];
     }
 }

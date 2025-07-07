@@ -13,20 +13,39 @@ class StudyLog extends Model
 
     protected $fillable = [
         'user_id',
-        'topic',
-        'duration_minutes',
-        'log_date',
-        'notes'
+        'title',
+        'description',
+        'category',
+        'duration',
+        'date'
     ];
 
     protected $casts = [
-        'log_date' => 'date',
-        'duration_minutes' => 'integer',
+        'date' => 'date',
+        'duration' => 'integer',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
 
     public function user() {
         return $this->belongsTo(User::class);
+    }
+
+    public function pomodoroSessions()
+    {
+        return $this->hasMany(PomodoroSession::class);
+    }
+
+    // Methods
+    public function getTotalFocusTime()
+    {
+        return $this->pomodoroSessions()
+            ->completed()
+            ->sum('actual_duration');
+    }
+
+    public function getPomodoroSessionsCount()
+    {
+        return $this->pomodoroSessions()->count();
     }
 }
